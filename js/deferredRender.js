@@ -295,6 +295,8 @@
         var program = cfg.debugScissor ? R.progScissor : R.prog_BlinnPhong_PointLight;
         bindTexturesForLightPass(program);
         gl.uniform1i(program.u_toon, cfg.toon ? 1 : 0);
+
+        Timer.start();
         for (var i = 0; i < R.lights.length; i++) {
             var light = R.lights[i];
             var sc = getScissorForLight(state.viewMat, state.projMat, light);
@@ -318,6 +320,8 @@
             }
             renderFullScreenQuad(program);
         }
+        Timer.end();
+
         gl.disable(gl.SCISSOR_TEST);
 
         // Disable blending so that it doesn't affect other code
