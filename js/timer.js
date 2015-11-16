@@ -44,8 +44,10 @@
                                                         ext.QUERY_RESULT_EXT);
                 Timer.count += 1;
                 Timer.total += timeElapsed;
-                var avg_ms = Timer.total/Timer.count;
-                console.log(timeElapsed/1000, Timer.count, avg_ms/1000);
+                if (Timer.count % 50 === 0) {
+                    var avg_ms = Timer.total/Timer.count * 0.000001;
+                    console.log(Timer.count + " iterations: " + avg_ms + "ms");
+                }
                 Timer.query = null;
             }
         }

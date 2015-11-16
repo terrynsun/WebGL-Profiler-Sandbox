@@ -247,6 +247,7 @@
                        R.NUM_GBUFFERS+4, tileOffsets.length / 3);
 
         Timer.start();
+        gl.uniform4f(program.u_zero, 0, 0, 0, 0);
         // Loop through the tiles and call the program for each.
         for (var x = 0; x < TILES_WIDTH; x++) {
             for (var y = 0; y < TILES_HEIGHT; y++) {

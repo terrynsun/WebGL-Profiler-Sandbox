@@ -104,7 +104,7 @@ var cfg;
 
                 p.u_tileIdx      = gl.getUniformLocation(p.prog, 'u_tileIdx');
                 p.u_lightStep    = gl.getUniformLocation(p.prog, 'u_lightStep');
-                p.test = 0;
+                p.u_zero         = gl.getUniformLocation(p.prog, 'u_zero');
                 R.progTiled = p;
                 Timer.reset();
             }, cfg.test);

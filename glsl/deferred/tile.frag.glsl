@@ -21,6 +21,8 @@ uniform sampler2D u_tileOffsets;
 uniform float u_tileIdx;
 uniform vec2 u_lightStep;
 
+uniform vec4 u_zero;
+
 const int c_maxLights = 200;
 
 varying vec2 v_uv;
@@ -119,12 +121,20 @@ void main() {
         vec4 lightPR;
         vec4 lightC;
 
-        /// START 1
+        /// START 2
         lightIdx = vec4(0).x;
-        lastLightIdx = lightIdx;
+        lightPR  = vec4(0);
+        lightC   = vec4(0);
 
-        lightPR = vec4(0);
-        lightC  = vec4(0);
+        lastLightIdx = lightIdx;
+        /// END 2
+
+        /// START 1
+        lightIdx = u_zero.x;
+        lightPR  = u_zero;
+        lightC   = u_zero;
+
+        lastLightIdx = lightIdx;
         /// END 1
 
         /// START 0
