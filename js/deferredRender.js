@@ -246,6 +246,7 @@
                        R.pass_tiled.tileOffsetTex, tileOffsets,
                        R.NUM_GBUFFERS+4, tileOffsets.length / 3);
 
+        Timer.start();
         // Loop through the tiles and call the program for each.
         for (var x = 0; x < TILES_WIDTH; x++) {
             for (var y = 0; y < TILES_HEIGHT; y++) {
@@ -255,6 +256,7 @@
                 renderFullScreenQuad(program);
             }
         }
+        Timer.end();
 
         // Disable gl features
         gl.disable(gl.SCISSOR_TEST);
@@ -285,7 +287,7 @@
         gl.uniform1f(R.prog_Ambient.u_ambientTerm, cfg.ambient);
         renderFullScreenQuad(R.prog_Ambient);
 
-        if (cfg.optimization == 0) {
+        if (cfg.optimization === 0) {
             gl.enable(gl.SCISSOR_TEST);
         } else {
         }
@@ -296,7 +298,6 @@
         bindTexturesForLightPass(program);
         gl.uniform1i(program.u_toon, cfg.toon ? 1 : 0);
 
-        Timer.start();
         for (var i = 0; i < R.lights.length; i++) {
             var light = R.lights[i];
             var sc = getScissorForLight(state.viewMat, state.projMat, light);
@@ -320,7 +321,6 @@
             }
             renderFullScreenQuad(program);
         }
-        Timer.end();
 
         gl.disable(gl.SCISSOR_TEST);
 

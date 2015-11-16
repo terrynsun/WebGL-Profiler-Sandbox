@@ -18,6 +18,8 @@ var cfg;
 
         this.tileSize = 100;
         this.tileDebugView = -1;
+
+        this.test = 0;
     };
 
     var init = function() {
@@ -74,6 +76,47 @@ var cfg;
             '# Lights': 0
         });
         tileOpts.open();
+
+        var reloadBlinnPhong = function() {
+            R.loadModifiedDeferredProgram('blinnphong-pointlight', function(p) {
+                p.u_cameraPos = gl.getUniformLocation(p.prog, 'u_cameraPos');
+                p.u_lightPos = gl.getUniformLocation(p.prog, 'u_lightPos');
+                p.u_lightCol = gl.getUniformLocation(p.prog, 'u_lightCol');
+                p.u_lightRad = gl.getUniformLocation(p.prog, 'u_lightRad');
+                p.u_toon     = gl.getUniformLocation(p.prog, 'u_toon');
+                R.prog_BlinnPhong_PointLight = p;
+            }, cfg.test);
+        };
+
+        var reloadTile = function() {
+            R.loadModifiedDeferredProgram('tile', function(p) {
+                // Save the object into this variable for access later
+                p.u_cameraPos    = gl.getUniformLocation(p.prog, 'u_cameraPos');
+                p.u_toon         = gl.getUniformLocation(p.prog, 'u_toon');
+                p.u_watercolor   = gl.getUniformLocation(p.prog, 'u_watercolor');
+                p.u_debugView    = gl.getUniformLocation(p.prog, 'u_debug');
+
+                p.u_lightsPR     = gl.getUniformLocation(p.prog, 'u_lightsPR');
+                p.u_lightsC      = gl.getUniformLocation(p.prog, 'u_lightsC');
+
+                p.u_lightIndices = gl.getUniformLocation(p.prog, 'u_lightIndices');
+                p.u_tileOffsets  = gl.getUniformLocation(p.prog, 'u_tileOffsets');
+
+                p.u_tileIdx      = gl.getUniformLocation(p.prog, 'u_tileIdx');
+                p.u_lightStep    = gl.getUniformLocation(p.prog, 'u_lightStep');
+                p.test = 0;
+                R.progTiled = p;
+                Timer.reset();
+            }, cfg.test);
+        };
+
+        var perfOpts = gui.addFolder('Perf');
+        perfOpts.add(cfg, 'test', {
+            '0': 0,
+            '1': 1,
+            '2': 2,
+        }).onFinishChange(reloadTile);
+        perfOpts.open();
 
         updateLights();
     };
