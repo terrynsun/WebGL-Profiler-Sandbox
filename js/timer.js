@@ -14,6 +14,9 @@
 
     Timer.start = function() {
         var ext = Timer.ext;
+        if (ext === null) {
+            return;
+        }
         if (Timer.query === null) {
             Timer.query = ext.createQueryEXT();
             ext.beginQueryEXT(ext.TIME_ELAPSED_EXT, Timer.query);
