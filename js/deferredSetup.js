@@ -186,6 +186,7 @@
             function(prog) {
                 // Create an object to hold info about this shader program
                 R.progRed = { prog: prog };
+                R.progRed.u_mouse = gl.getUniformLocation(prog, 'u_mouse');
             });
 
         loadShaderProgram(gl, 'glsl/quad.vert.glsl', 'glsl/clear.frag.glsl',

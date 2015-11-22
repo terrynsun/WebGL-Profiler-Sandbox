@@ -66,6 +66,14 @@ var width, height;
         console.log('MAX_DRAW_BUFFERS_WEBGL: ' + maxdb);
     };
 
+    var getMousePos = function(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top
+        };
+    }
+
     var init = function() {
         // TODO: For performance measurements, disable debug mode!
         var debugMode = false;
@@ -76,6 +84,12 @@ var width, height;
             preserveDrawingBuffer: debugMode
         });
         gl = renderer.context;
+        
+        var mousePos;
+        canvas.addEventListener('mousemove', function(evt) {
+            mousePos = getMousePos(canvas, evt);
+            console.log('Mouse position: ' + mousePos.x + ',' + mousePos.y);
+        }, false);
 
         if (debugMode) {
             $('#dlbutton button').attr('disabled', false);
