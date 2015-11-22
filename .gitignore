@@ -152,3 +152,6 @@ local.properties
 
 # TeXlipse plugin
 .texlipse
+
+# NPM
+node_modules/

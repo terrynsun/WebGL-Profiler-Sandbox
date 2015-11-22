@@ -29,6 +29,8 @@
         R.pass_copy.setup();
         R.pass_deferred.setup();
         R.pass_tiled.setup();
+
+        Timer.init();
     };
 
     R.light_min = [-14, 0, -4];
@@ -264,6 +266,25 @@
 
                 callback(p);
             });
+    };
+
+    R.loadModifiedDeferredProgram = function(name, callback, modifVal) {
+        loadShaderProgram(gl, 'glsl/quad.vert.glsl',
+                          'glsl/deferred/' + name + '.frag.glsl',
+            function(prog) {
+                // Create an object to hold info about this shader program
+                var p = { prog: prog };
+
+                // Retrieve the uniform and attribute locations
+                p.u_gbufs = [];
+                for (var i = 0; i < R.NUM_GBUFFERS; i++) {
+                    p.u_gbufs[i] = gl.getUniformLocation(prog, 'u_gbufs[' + i + ']');
+                }
+                p.u_depth    = gl.getUniformLocation(prog, 'u_depth');
+                p.a_position = gl.getAttribLocation(prog, 'a_position');
+
+                callback(p);
+            }, modifVal);
     };
 
     var loadPostProgram = function(name, callback) {

@@ -40,6 +40,34 @@ window.loadTexture = (function() {
     };
 })();
 
+var modifyFragmentShader = function(fs, modifier) {
+    var fsLines = fs.split('\n');
+    var remove = false;
+    var regexStart = /\/\/\/ START (\d)/;
+    var regexEnd = /\/\/\/ END (\d)/;
+    for (var i = 0; i < fsLines.length; i++) {
+        var line = fsLines[i];
+
+        var resultStart = line.match(regexStart);
+        if (resultStart !== null && resultStart.length == 2) {
+            if (modifier != resultStart[1]) {
+                remove = true;
+            }
+        }
+
+        if (remove === true) {
+            fsLines[i] = "";
+            var resultStop = line.match(regexEnd);
+            if (resultStop && resultStop.length == 2) {
+                if (modifier != resultStop[1]) {
+                    remove = false;
+                }
+            }
+        }
+    }
+    return fsLines.join('\n');
+};
+
 window.loadShaderProgram = (function() {
     'use strict';
 
@@ -48,6 +76,7 @@ window.loadShaderProgram = (function() {
         gl.shaderSource(shader, shaderSource);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error("SHADER ERROR");
             console.error(shaderSource);
             abort('shader compiler error:\n' + gl.getShaderInfoLog(shader));
         }
@@ -66,10 +95,14 @@ window.loadShaderProgram = (function() {
         return prog;
     };
 
-    return function(gl, urlVS, urlFS, callback) {
+    return function(gl, urlVS, urlFS, callback, modifVal) {
         return Promise.all([$.get(urlVS), $.get(urlFS)]).then(
             function(results) {
-                var vs = results[0], fs = results[1];
+                var vs = results[0];
+                var fs = results[1];
+                if (modifVal !== undefined && modifVal > 0) {
+                    fs = modifyFragmentShader(fs, modifVal);
+                }
                 vs = compileShader(gl, vs, gl.VERTEX_SHADER);
                 fs = compileShader(gl, fs, gl.FRAGMENT_SHADER);
                 return linkShader(gl, vs, fs);

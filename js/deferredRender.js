@@ -246,6 +246,8 @@
                        R.pass_tiled.tileOffsetTex, tileOffsets,
                        R.NUM_GBUFFERS+4, tileOffsets.length / 3);
 
+        Timer.start();
+        gl.uniform4f(program.u_zero, 0, 0, 0, 0);
         // Loop through the tiles and call the program for each.
         for (var x = 0; x < TILES_WIDTH; x++) {
             for (var y = 0; y < TILES_HEIGHT; y++) {
@@ -255,6 +257,7 @@
                 renderFullScreenQuad(program);
             }
         }
+        Timer.end();
 
         // Disable gl features
         gl.disable(gl.SCISSOR_TEST);
@@ -285,7 +288,7 @@
         gl.uniform1f(R.prog_Ambient.u_ambientTerm, cfg.ambient);
         renderFullScreenQuad(R.prog_Ambient);
 
-        if (cfg.optimization == 0) {
+        if (cfg.optimization === 0) {
             gl.enable(gl.SCISSOR_TEST);
         } else {
         }
@@ -295,6 +298,7 @@
         var program = cfg.debugScissor ? R.progScissor : R.prog_BlinnPhong_PointLight;
         bindTexturesForLightPass(program);
         gl.uniform1i(program.u_toon, cfg.toon ? 1 : 0);
+
         for (var i = 0; i < R.lights.length; i++) {
             var light = R.lights[i];
             var sc = getScissorForLight(state.viewMat, state.projMat, light);
@@ -318,6 +322,7 @@
             }
             renderFullScreenQuad(program);
         }
+
         gl.disable(gl.SCISSOR_TEST);
 
         // Disable blending so that it doesn't affect other code
