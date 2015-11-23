@@ -351,7 +351,7 @@
         gl.uniform1i(R.progPost1.u_color, 0);
 
         // * Set mouse position
-        console.log('Mouse position: ' + state.mousePos.x + ',' + state.mousePos.y);
+        $("#mouse_pos").text('Mouse position: ' + state.mousePos.x + ',' + state.mousePos.y)
         gl.uniform2f(R.progPost1.u_mouse, state.mousePos.x, state.mousePos.y);
 
         // * Render a fullscreen quad to perform shading on

@@ -12,11 +12,11 @@ const vec4 SKY_COLOR = vec4(0.01, 0.14, 0.42, 1.0);
 void main() {
     vec4 color = texture2D(u_color, v_uv);
 
-    if(u_mouse == v_uv) {
+    if(length(u_mouse - gl_FragCoord.xy) < 5.0) {
     	gl_FragColor = vec4(1, 0, 0, 1);
     	return;
     }
-    
+
     if (color.a == 0.0) {
         gl_FragColor = SKY_COLOR;
         return;

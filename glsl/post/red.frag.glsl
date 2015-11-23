@@ -10,7 +10,7 @@ void main() {
 
 	vec4 color = texture2D(u_color, v_uv);
 
-	if(u_mouse == v_uv) {
+	if(u_mouse == gl_FragCoord) {
     	gl_FragColor = vec4(1, 0, 0, 1);
     	return;
     }
