@@ -56,7 +56,6 @@
     R.deferredRender = function(state) {
         if (!aborted && (
             !R.progCopy ||
-            !R.progRed ||
             !R.progClear ||
             !R.prog_Ambient ||
             !R.prog_BlinnPhong_PointLight ||
@@ -89,10 +88,12 @@
         } else if (cfg.optimization == 1) {
             R.pass_tiled.render(state);
             R.pass_post1.render(state);
+           // R.pass_mouse.render(state);
         } else {
             // both unoptimized deferred and scissor pass through here
             R.pass_deferred.render(state);
             R.pass_post1.render(state);
+            //R.pass_mouse.render(state);
         }
     };
 
@@ -170,6 +171,9 @@
             var light = R.lights[lightIdx];
             var lightIdxStore = (lightIdx + 0.5) / R.lights.length;
             var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            $("#mouse_pos").text('Mouse position: ' + Math.round(state.mousePos.x) + ',' + 
+                Math.round(state.mousePos.y));
+            
             // xmin, ymin, xwidth, ywidth
             if (sc !== null && sc[2] > 0 && sc[3] > 0) {
                 var tileX = Math.floor(sc[0] / TILE_SIZE);
@@ -246,6 +250,8 @@
                        R.pass_tiled.tileOffsetTex, tileOffsets,
                        R.NUM_GBUFFERS+4, tileOffsets.length / 3);
 
+        Timer.start();
+        gl.uniform4f(program.u_zero, 0, 0, 0, 0);
         // Loop through the tiles and call the program for each.
         for (var x = 0; x < TILES_WIDTH; x++) {
             for (var y = 0; y < TILES_HEIGHT; y++) {
@@ -255,6 +261,7 @@
                 renderFullScreenQuad(program);
             }
         }
+        Timer.end();
 
         // Disable gl features
         gl.disable(gl.SCISSOR_TEST);
@@ -284,20 +291,27 @@
         bindTexturesForLightPass(R.prog_Ambient);
         gl.uniform1f(R.prog_Ambient.u_ambientTerm, cfg.ambient);
         renderFullScreenQuad(R.prog_Ambient);
-
-        if (cfg.optimization == 0) {
-            gl.enable(gl.SCISSOR_TEST);
-        } else {
-        }
-
+        
+        gl.enable(gl.SCISSOR_TEST);
+      
         // * Bind/setup the Blinn-Phong pass, and render using fullscreen quad
         var cam = state.cameraPos;
         var program = cfg.debugScissor ? R.progScissor : R.prog_BlinnPhong_PointLight;
         bindTexturesForLightPass(program);
         gl.uniform1i(program.u_toon, cfg.toon ? 1 : 0);
+
+        //scissor patch size
+        var scSize = cfg.scissorSize;
+
         for (var i = 0; i < R.lights.length; i++) {
             var light = R.lights[i];
-            var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            //var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            $("#mouse_pos").text('Mouse position: ' + Math.round(state.mousePos.x) + ',' + 
+                Math.round(state.mousePos.y));
+
+            var sc = [Math.round(state.mousePos.x - scSize/2), 
+                      Math.round(height - state.mousePos.y - scSize/2), 
+                      scSize, scSize];
             if (sc !== null && sc[2] > 0 && sc[3] > 0) {
                 gl.scissor(sc[0], sc[1], sc[2], sc[3]);
             } else {
@@ -307,6 +321,7 @@
             if (cfg.debugScissor) {
                 gl.uniform3f(program.u_lightCol,
                             light.col[0], light.col[1], light.col[2]);
+                renderFullScreenQuad(program);
             } else {
                 gl.uniform3f(program.u_cameraPos,
                             cam.x, cam.y, cam.z);
@@ -316,8 +331,9 @@
                             light.pos[0], light.pos[1], light.pos[2]);
                 gl.uniform1f(program.u_lightRad, cfg.lightRadius);
             }
-            renderFullScreenQuad(program);
+            renderFullScreenQuad(R.prog_BlinnPhong_PointLight);
         }
+
         gl.disable(gl.SCISSOR_TEST);
 
         // Disable blending so that it doesn't affect other code
@@ -345,11 +361,39 @@
         gl.bindTexture(gl.TEXTURE_2D, R.pass_deferred.colorTex);
         // Configure the R.progPost1.u_color uniform to point at texture unit 0
         gl.uniform1i(R.progPost1.u_color, 0);
-
+        
         // * Render a fullscreen quad to perform shading on
         renderFullScreenQuad(R.progPost1);
     };
 
+    R.pass_mouse.render = function(state) {
+        // * Unbind any existing framebuffer (if there are no more passes)
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        // * Clear the framebuffer depth to 1.0
+        gl.clearDepth(1.0);
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+
+        // * Bind the postprocessing shader program
+        gl.useProgram(R.progMouse.prog);
+
+        // * Bind the deferred pass's color output as a texture input
+        // Set gl.TEXTURE0 as the gl.activeTexture unit
+        gl.activeTexture(gl.TEXTURE0);
+        // Bind the TEXTURE_2D, R.pass_deferred.colorTex to the active texture unit
+        gl.bindTexture(gl.TEXTURE_2D, R.pass_deferred.colorTex);
+        // Configure the R.progPost1.u_color uniform to point at texture unit 0
+        gl.uniform1i(R.progMouse.u_color, 0);
+        gl.uniform1f(R.progMouse.u_height, height);
+
+        // * Set mouse position
+        $("#mouse_pos").text('Mouse position: ' + state.mousePos.x + ',' + state.mousePos.y)
+        gl.uniform2f(R.progMouse.u_mouse, state.mousePos.x, state.mousePos.y);
+
+        // * Render a fullscreen quad to perform shading on
+        renderFullScreenQuad(R.progMouse);
+    };
+    
     var renderFullScreenQuad = (function() {
         // The variables in this function are private to the implementation of
         // renderFullScreenQuad. They work like static local variables in C++.

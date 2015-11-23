@@ -17,6 +17,10 @@
     <script src="lib/stats.min.js"></script>
     <script src="lib/dat.gui.js"></script>
 
+    <script src="profiler/timer.js"></script>
+    <script src="profiler/glsl-editor.js"></script>
+    <script src="profiler/glsl-parser.js"></script>
+
     <script src="js/util.js"></script>
     <script src="js/main.js"></script>
     <script src="js/deferredSetup.js"></script>
@@ -37,6 +41,7 @@
             text-align: center;
             font-family: sans-serif;
             background-color: #000000;
+
             color: #ffff00;
             position: fixed;
             bottom: 0px;
@@ -84,13 +89,26 @@
             height: 1.4em;
             position: fixed;
             bottom: 2em;
-            left: 0;
+            left: 0.5em;
+            padding: 1em;
+            background-color: rgba(0,0,0,0.5);
+        }
+        #mouse_pos {
+            font-family: sans-serif;
+            color: white;
+            height: 1.4em;
+            position: fixed;
+            bottom: 5.5em;
+            left: 0.5em;
+            padding: 1em;
+            background-color: rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
     <canvas id="canvas" width="800px" height="600px"></canvas>
     <div id="msgbox"></div>
+    <div id="mouse_pos"></div>
     <div id="debugmodewarning">
         <strong style="font-size: 150%">DEBUG MODE!</strong>
         (Disable before measuring performance.)

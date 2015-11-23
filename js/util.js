@@ -48,6 +48,7 @@ window.loadShaderProgram = (function() {
         gl.shaderSource(shader, shaderSource);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error("SHADER ERROR");
             console.error(shaderSource);
             abort('shader compiler error:\n' + gl.getShaderInfoLog(shader));
         }
@@ -66,10 +67,14 @@ window.loadShaderProgram = (function() {
         return prog;
     };
 
-    return function(gl, urlVS, urlFS, callback) {
+    return function(gl, urlVS, urlFS, callback, modifVal) {
         return Promise.all([$.get(urlVS), $.get(urlFS)]).then(
             function(results) {
-                var vs = results[0], fs = results[1];
+                var vs = results[0];
+                var fs = results[1];
+                if (modifVal !== undefined && modifVal > 0) {
+                    fs = Editor.naiveModifyFragmentShader(fs, modifVal);
+                }
                 vs = compileShader(gl, vs, gl.VERTEX_SHADER);
                 fs = compileShader(gl, fs, gl.FRAGMENT_SHADER);
                 return linkShader(gl, vs, fs);

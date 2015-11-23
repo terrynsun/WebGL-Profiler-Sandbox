@@ -7,6 +7,7 @@
     R.pass_deferred = {};
     R.pass_tiled = {};
     R.pass_post1 = {};
+    R.pass_mouse = {};
     R.lights = [];
     R.lightTexturePosRad = new Float32Array();
     R.lightTextureCol    = new Float32Array();
@@ -29,6 +30,8 @@
         R.pass_copy.setup();
         R.pass_deferred.setup();
         R.pass_tiled.setup();
+
+        Timer.init();
     };
 
     R.light_min = [-14, 0, -4];
@@ -180,12 +183,6 @@
                 R.progCopy = p;
             });
 
-        loadShaderProgram(gl, 'glsl/quad.vert.glsl', 'glsl/red.frag.glsl',
-            function(prog) {
-                // Create an object to hold info about this shader program
-                R.progRed = { prog: prog };
-            });
-
         loadShaderProgram(gl, 'glsl/quad.vert.glsl', 'glsl/clear.frag.glsl',
             function(prog) {
                 // Create an object to hold info about this shader program
@@ -244,7 +241,14 @@
             R.progPost1 = p;
         });
 
-        // TODO: If you add more passes, load and set up their shader programs.
+        loadPostProgram('mouse', function(p) {
+            p.u_color    = gl.getUniformLocation(p.prog, 'u_color');
+            p.u_mouse    = gl.getUniformLocation(p.prog, 'u_mouse');
+            p.u_height    = gl.getUniformLocation(p.prog, 'u_height');
+            // Save the object into this variable for access later
+            R.progMouse = p;
+        });
+
     };
 
     var loadDeferredProgram = function(name, callback) {
@@ -264,6 +268,25 @@
 
                 callback(p);
             });
+    };
+
+    R.loadModifiedDeferredProgram = function(name, callback, modifVal) {
+        loadShaderProgram(gl, 'glsl/quad.vert.glsl',
+                          'glsl/deferred/' + name + '.frag.glsl',
+            function(prog) {
+                // Create an object to hold info about this shader program
+                var p = { prog: prog };
+
+                // Retrieve the uniform and attribute locations
+                p.u_gbufs = [];
+                for (var i = 0; i < R.NUM_GBUFFERS; i++) {
+                    p.u_gbufs[i] = gl.getUniformLocation(prog, 'u_gbufs[' + i + ']');
+                }
+                p.u_depth    = gl.getUniformLocation(prog, 'u_depth');
+                p.a_position = gl.getAttribLocation(prog, 'a_position');
+
+                callback(p);
+            }, modifVal);
     };
 
     var loadPostProgram = function(name, callback) {

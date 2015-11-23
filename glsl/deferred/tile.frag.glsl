@@ -21,6 +21,8 @@ uniform sampler2D u_tileOffsets;
 uniform float u_tileIdx;
 uniform vec2 u_lightStep;
 
+uniform vec4 u_zero;
+
 const int c_maxLights = 200;
 
 varying vec2 v_uv;
@@ -115,11 +117,33 @@ void main() {
         if (i >= lightCount) {
             break;
         }
-        float lightIdx = texture2D(u_lightIndices, offsetIdx).x;
+        float lightIdx;
+        vec4 lightPR;
+        vec4 lightC;
+
+        /// START 2
+        lightIdx = vec4(0).x;
+        lightPR  = vec4(0);
+        lightC   = vec4(0);
+
+        lastLightIdx = lightIdx;
+        /// END 2
+
+        /// START 1
+        lightIdx = u_zero.x;
+        lightPR  = u_zero;
+        lightC   = u_zero;
+
+        lastLightIdx = lightIdx;
+        /// END 1
+
+        /// START 0
+        lightIdx = texture2D(u_lightIndices, offsetIdx).x;
         lastLightIdx = lightIdx;
 
-        vec4 lightPR = texture2D(u_lightsPR, vec2(lightIdx, 0));
-        vec4 lightC  = texture2D(u_lightsC,  vec2(lightIdx, 0));
+        lightPR = texture2D(u_lightsPR, vec2(lightIdx, 0));
+        lightC  = texture2D(u_lightsC,  vec2(lightIdx, 0));
+        /// END 0
 
         vec3 lightCol = vec3(lightC);
         vec3 lightPos = lightPR.xyz;
