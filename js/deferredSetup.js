@@ -182,13 +182,6 @@
                 R.progCopy = p;
             });
 
-        loadShaderProgram(gl, 'glsl/quad.vert.glsl', 'glsl/red.frag.glsl',
-            function(prog) {
-                // Create an object to hold info about this shader program
-                R.progRed = { prog: prog };
-                R.progRed.u_mouse = gl.getUniformLocation(prog, 'u_mouse');
-            });
-
         loadShaderProgram(gl, 'glsl/quad.vert.glsl', 'glsl/clear.frag.glsl',
             function(prog) {
                 // Create an object to hold info about this shader program
@@ -243,11 +236,11 @@
 
         loadPostProgram('one', function(p) {
             p.u_color    = gl.getUniformLocation(p.prog, 'u_color');
+            p.u_mouse    = gl.getUniformLocation(p.prog, 'u_mouse');
             // Save the object into this variable for access later
             R.progPost1 = p;
         });
 
-        // TODO: If you add more passes, load and set up their shader programs.
     };
 
     var loadDeferredProgram = function(name, callback) {

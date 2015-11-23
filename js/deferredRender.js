@@ -56,7 +56,6 @@
     R.deferredRender = function(state) {
         if (!aborted && (
             !R.progCopy ||
-            !R.progRed ||
             !R.progClear ||
             !R.prog_Ambient ||
             !R.prog_BlinnPhong_PointLight ||
@@ -351,10 +350,14 @@
         // Configure the R.progPost1.u_color uniform to point at texture unit 0
         gl.uniform1i(R.progPost1.u_color, 0);
 
+        // * Set mouse position
+        console.log('Mouse position: ' + state.mousePos.x + ',' + state.mousePos.y);
+        gl.uniform2f(R.progPost1.u_mouse, state.mousePos.x, state.mousePos.y);
+
         // * Render a fullscreen quad to perform shading on
         renderFullScreenQuad(R.progPost1);
     };
-
+    
     var renderFullScreenQuad = (function() {
         // The variables in this function are private to the implementation of
         // renderFullScreenQuad. They work like static local variables in C++.

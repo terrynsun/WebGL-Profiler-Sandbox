@@ -4,7 +4,7 @@ var width, height;
 (function() {
     'use strict';
 
-    var canvas, renderer, scene, camera, controls, stats;
+    var canvas, renderer, scene, camera, controls, stats, mousePos;
     var models = [];
 
     var cameraMat = new THREE.Matrix4();
@@ -18,7 +18,8 @@ var width, height;
             projMat: camera.projectionMatrix,
             viewMat: camera.matrixWorldInverse,
             cameraPos: camera.position,
-            models: models
+            models: models,
+            mousePos: mousePos
         });
     };
 
@@ -79,18 +80,17 @@ var width, height;
         var debugMode = false;
 
         canvas = document.getElementById('canvas');
+        mousePos = {"x": 0, "y":0};
+        canvas.addEventListener('mousemove', function(evt) {
+            mousePos = getMousePos(canvas, evt);
+        }, false);
+
         renderer = new THREE.WebGLRenderer({
             canvas: canvas,
             preserveDrawingBuffer: debugMode
         });
         gl = renderer.context;
         
-        var mousePos;
-        canvas.addEventListener('mousemove', function(evt) {
-            mousePos = getMousePos(canvas, evt);
-            console.log('Mouse position: ' + mousePos.x + ',' + mousePos.y);
-        }, false);
-
         if (debugMode) {
             $('#dlbutton button').attr('disabled', false);
             $('#debugmodewarning').css('display', 'block');
