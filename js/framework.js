@@ -103,6 +103,8 @@ var width, height;
 
         initExtensions();
 
+        Editor.init();
+
         stats = new Stats();
         stats.setMode(1); // 0: fps, 1: ms, 2: mb
         stats.domElement.style.position = 'absolute';

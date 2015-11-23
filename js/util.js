@@ -40,34 +40,6 @@ window.loadTexture = (function() {
     };
 })();
 
-var modifyFragmentShader = function(fs, modifier) {
-    var fsLines = fs.split('\n');
-    var remove = false;
-    var regexStart = /\/\/\/ START (\d)/;
-    var regexEnd = /\/\/\/ END (\d)/;
-    for (var i = 0; i < fsLines.length; i++) {
-        var line = fsLines[i];
-
-        var resultStart = line.match(regexStart);
-        if (resultStart !== null && resultStart.length == 2) {
-            if (modifier != resultStart[1]) {
-                remove = true;
-            }
-        }
-
-        if (remove === true) {
-            fsLines[i] = "";
-            var resultStop = line.match(regexEnd);
-            if (resultStop && resultStop.length == 2) {
-                if (modifier != resultStop[1]) {
-                    remove = false;
-                }
-            }
-        }
-    }
-    return fsLines.join('\n');
-};
-
 window.loadShaderProgram = (function() {
     'use strict';
 
@@ -101,7 +73,7 @@ window.loadShaderProgram = (function() {
                 var vs = results[0];
                 var fs = results[1];
                 if (modifVal !== undefined && modifVal > 0) {
-                    fs = modifyFragmentShader(fs, modifVal);
+                    fs = Editor.naiveModifyFragmentShader(fs, modifVal);
                 }
                 vs = compileShader(gl, vs, gl.VERTEX_SHADER);
                 fs = compileShader(gl, fs, gl.FRAGMENT_SHADER);

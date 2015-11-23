@@ -1,3 +1,0 @@
-{
-    "dependencies": ["glsl-tokenizer", "glsl-parser"]
-}
