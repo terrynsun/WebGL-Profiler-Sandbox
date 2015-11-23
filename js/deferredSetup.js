@@ -7,6 +7,7 @@
     R.pass_deferred = {};
     R.pass_tiled = {};
     R.pass_post1 = {};
+    R.pass_mouse = {};
     R.lights = [];
     R.lightTexturePosRad = new Float32Array();
     R.lightTextureCol    = new Float32Array();
@@ -236,10 +237,16 @@
 
         loadPostProgram('one', function(p) {
             p.u_color    = gl.getUniformLocation(p.prog, 'u_color');
+            // Save the object into this variable for access later
+            R.progPost1 = p;
+        });
+
+        loadPostProgram('mouse', function(p) {
+            p.u_color    = gl.getUniformLocation(p.prog, 'u_color');
             p.u_mouse    = gl.getUniformLocation(p.prog, 'u_mouse');
             p.u_height    = gl.getUniformLocation(p.prog, 'u_height');
             // Save the object into this variable for access later
-            R.progPost1 = p;
+            R.progMouse = p;
         });
 
     };

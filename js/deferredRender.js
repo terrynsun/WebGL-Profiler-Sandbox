@@ -87,11 +87,13 @@
             R.pass_debug.render(state);
         } else if (cfg.optimization == 1) {
             R.pass_tiled.render(state);
-            R.pass_post1.render(state);
+           // R.pass_post1.render(state);
+            R.pass_mouse.render(state);
         } else {
             // both unoptimized deferred and scissor pass through here
             R.pass_deferred.render(state);
-            R.pass_post1.render(state);
+            //R.pass_post1.render(state);
+              R.pass_mouse.render(state);
         }
     };
 
@@ -349,14 +351,37 @@
         gl.bindTexture(gl.TEXTURE_2D, R.pass_deferred.colorTex);
         // Configure the R.progPost1.u_color uniform to point at texture unit 0
         gl.uniform1i(R.progPost1.u_color, 0);
-        gl.uniform1f(R.progPost1.u_height, height);
+        
+        // * Render a fullscreen quad to perform shading on
+        renderFullScreenQuad(R.progPost1);
+    };
+
+    R.pass_mouse.render = function(state) {
+        // * Unbind any existing framebuffer (if there are no more passes)
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        // * Clear the framebuffer depth to 1.0
+        gl.clearDepth(1.0);
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+
+        // * Bind the postprocessing shader program
+        gl.useProgram(R.progMouse.prog);
+
+        // * Bind the deferred pass's color output as a texture input
+        // Set gl.TEXTURE0 as the gl.activeTexture unit
+        gl.activeTexture(gl.TEXTURE0);
+        // Bind the TEXTURE_2D, R.pass_deferred.colorTex to the active texture unit
+        gl.bindTexture(gl.TEXTURE_2D, R.pass_deferred.colorTex);
+        // Configure the R.progPost1.u_color uniform to point at texture unit 0
+        gl.uniform1i(R.progMouse.u_color, 0);
+        gl.uniform1f(R.progMouse.u_height, height);
 
         // * Set mouse position
         $("#mouse_pos").text('Mouse position: ' + state.mousePos.x + ',' + state.mousePos.y)
-        gl.uniform2f(R.progPost1.u_mouse, state.mousePos.x, state.mousePos.y);
+        gl.uniform2f(R.progMouse.u_mouse, state.mousePos.x, state.mousePos.y);
 
         // * Render a fullscreen quad to perform shading on
-        renderFullScreenQuad(R.progPost1);
+        renderFullScreenQuad(R.progMouse);
     };
     
     var renderFullScreenQuad = (function() {
