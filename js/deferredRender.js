@@ -170,10 +170,10 @@
         for (var lightIdx = 0; lightIdx < R.lights.length; lightIdx++) {
             var light = R.lights[lightIdx];
             var lightIdxStore = (lightIdx + 0.5) / R.lights.length;
-            //var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            var sc = getScissorForLight(state.viewMat, state.projMat, light);
             $("#mouse_pos").text('Mouse position: ' + Math.round(state.mousePos.x) + ',' + 
                 Math.round(state.mousePos.y));
-            var sc = [Math.round(state.mousePos.x) - 1, Math.round(height - state.mousePos.y) - 1, 2, 2];
+            
             // xmin, ymin, xwidth, ywidth
             if (sc !== null && sc[2] > 0 && sc[3] > 0) {
                 var tileX = Math.floor(sc[0] / TILE_SIZE);
@@ -291,12 +291,9 @@
         bindTexturesForLightPass(R.prog_Ambient);
         gl.uniform1f(R.prog_Ambient.u_ambientTerm, cfg.ambient);
         renderFullScreenQuad(R.prog_Ambient);
-
-        if (cfg.optimization === 0) {
-            gl.enable(gl.SCISSOR_TEST);
-        } else {
-        }
-
+        
+        gl.enable(gl.SCISSOR_TEST);
+      
         // * Bind/setup the Blinn-Phong pass, and render using fullscreen quad
         var cam = state.cameraPos;
         var program = cfg.debugScissor ? R.progScissor : R.prog_BlinnPhong_PointLight;
@@ -306,6 +303,8 @@
         for (var i = 0; i < R.lights.length; i++) {
             var light = R.lights[i];
             //var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            $("#mouse_pos").text('Mouse position: ' + Math.round(state.mousePos.x) + ',' + 
+                Math.round(state.mousePos.y));
             var sc = [Math.round(state.mousePos.x) - 1, Math.round(height - state.mousePos.y) - 1, 2, 2];
             if (sc !== null && sc[2] > 0 && sc[3] > 0) {
                 gl.scissor(sc[0], sc[1], sc[2], sc[3]);
@@ -316,6 +315,7 @@
             if (cfg.debugScissor) {
                 gl.uniform3f(program.u_lightCol,
                             light.col[0], light.col[1], light.col[2]);
+                renderFullScreenQuad(program);
             } else {
                 gl.uniform3f(program.u_cameraPos,
                             cam.x, cam.y, cam.z);
@@ -325,7 +325,7 @@
                             light.pos[0], light.pos[1], light.pos[2]);
                 gl.uniform1f(program.u_lightRad, cfg.lightRadius);
             }
-            renderFullScreenQuad(program);
+            renderFullScreenQuad(R.prog_BlinnPhong_PointLight);
         }
 
         gl.disable(gl.SCISSOR_TEST);

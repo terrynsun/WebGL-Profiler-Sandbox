@@ -5,5 +5,5 @@ precision highp int;
 uniform vec3 u_lightCol;
 
 void main() {
-    gl_FragColor = vec4(u_lightCol * .05, 1);
+    gl_FragColor = vec4(0.5 * u_lightCol, 1);
 }
