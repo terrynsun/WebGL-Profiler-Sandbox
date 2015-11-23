@@ -6,6 +6,7 @@ var cfg;
     var Cfg = function() {
         this.debugView = -1;
         this.debugScissor = false;
+        this.scissorSize = 100;
 
         this.optimization = 1;
         this.movingLights = true;
@@ -45,6 +46,7 @@ var cfg;
             'Tile':    1,
         });
         opt.add(cfg, 'debugScissor');
+        opt.add(cfg, 'scissorSize').min(1).max(200).step(5);
         opt.open();
 
         var effects = gui.addFolder('Effects');

@@ -300,12 +300,18 @@
         bindTexturesForLightPass(program);
         gl.uniform1i(program.u_toon, cfg.toon ? 1 : 0);
 
+        //scissor patch size
+        var scSize = cfg.scissorSize;
+
         for (var i = 0; i < R.lights.length; i++) {
             var light = R.lights[i];
             //var sc = getScissorForLight(state.viewMat, state.projMat, light);
             $("#mouse_pos").text('Mouse position: ' + Math.round(state.mousePos.x) + ',' + 
                 Math.round(state.mousePos.y));
-            var sc = [Math.round(state.mousePos.x) - 1, Math.round(height - state.mousePos.y) - 1, 2, 2];
+
+            var sc = [Math.round(state.mousePos.x - scSize/2), 
+                      Math.round(height - state.mousePos.y - scSize/2), 
+                      scSize, scSize];
             if (sc !== null && sc[2] > 0 && sc[3] > 0) {
                 gl.scissor(sc[0], sc[1], sc[2], sc[3]);
             } else {
