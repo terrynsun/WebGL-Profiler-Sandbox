@@ -2,25 +2,14 @@
     'use strict';
 
     window.Editor = {};
-    var glslTokenString;
-    var glslParser;
 
     Editor.init = function() {
-        glslTokenString = require('glsl-tokenizer/string');
-        glslParser = require('glsl-parser/direct');
     };
 
-    Editor.test = function(shader) {
-        //console.log(shader);
-        var tokens = glslTokenString(shader);
-        var ast = glslParser(tokens);
-        // TODO: how to catch errors?
+    Editor.test = function(fs) {
+        var parser = new GLSLParser();
+        var ast = parser.parse(fs);
         console.log(ast);
-        for (var i = 0; i < ast.length; i++) {
-            var node = ast[i];
-            console.log(node.token, node.type, node.children.length);
-        }
-        debugger;
     };
 
     Editor.naiveModifyFragmentShader = function(fs, modifier) {
