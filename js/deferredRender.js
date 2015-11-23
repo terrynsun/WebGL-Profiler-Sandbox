@@ -87,13 +87,13 @@
             R.pass_debug.render(state);
         } else if (cfg.optimization == 1) {
             R.pass_tiled.render(state);
-           // R.pass_post1.render(state);
-            R.pass_mouse.render(state);
+            R.pass_post1.render(state);
+           // R.pass_mouse.render(state);
         } else {
             // both unoptimized deferred and scissor pass through here
             R.pass_deferred.render(state);
-            //R.pass_post1.render(state);
-              R.pass_mouse.render(state);
+            R.pass_post1.render(state);
+            //R.pass_mouse.render(state);
         }
     };
 
@@ -170,7 +170,10 @@
         for (var lightIdx = 0; lightIdx < R.lights.length; lightIdx++) {
             var light = R.lights[lightIdx];
             var lightIdxStore = (lightIdx + 0.5) / R.lights.length;
-            var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            //var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            $("#mouse_pos").text('Mouse position: ' + Math.round(state.mousePos.x) + ',' + 
+                Math.round(state.mousePos.y));
+            var sc = [Math.round(state.mousePos.x) - 1, Math.round(height - state.mousePos.y) - 1, 2, 2];
             // xmin, ymin, xwidth, ywidth
             if (sc !== null && sc[2] > 0 && sc[3] > 0) {
                 var tileX = Math.floor(sc[0] / TILE_SIZE);
@@ -302,7 +305,8 @@
 
         for (var i = 0; i < R.lights.length; i++) {
             var light = R.lights[i];
-            var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            //var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            var sc = [Math.round(state.mousePos.x) - 1, Math.round(height - state.mousePos.y) - 1, 2, 2];
             if (sc !== null && sc[2] > 0 && sc[3] > 0) {
                 gl.scissor(sc[0], sc[1], sc[2], sc[3]);
             } else {
