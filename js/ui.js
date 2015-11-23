@@ -46,7 +46,7 @@ var cfg;
             'Tile':    1,
         });
         opt.add(cfg, 'debugScissor');
-        opt.add(cfg, 'scissorSize').min(1).max(200).step(5);
+        opt.add(cfg, 'scissorSize').min(1).max(500).step(1);
         opt.open();
 
         var effects = gui.addFolder('Effects');
