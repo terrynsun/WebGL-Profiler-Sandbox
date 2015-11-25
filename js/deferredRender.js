@@ -287,9 +287,9 @@
         bindTexturesForLightPass(R.prog_Ambient);
         gl.uniform1f(R.prog_Ambient.u_ambientTerm, cfg.ambient);
         renderFullScreenQuad(R.prog_Ambient);
-        
+
         gl.enable(gl.SCISSOR_TEST);
-      
+
         // * Bind/setup the Blinn-Phong pass, and render using fullscreen quad
         var cam = state.cameraPos;
         var program = cfg.debugScissor ? R.progScissor : R.prog_BlinnPhong_PointLight;
@@ -301,12 +301,8 @@
 
         for (var i = 0; i < R.lights.length; i++) {
             var light = R.lights[i];
-            //var sc = getScissorForLight(state.viewMat, state.projMat, light);
+            var sc = getScissorForLight(state.viewMat, state.projMat, light);
 
-            var mousePos = Profiler.mousePos;
-            var sc = [Math.round(mousePos.x - scSize/2), 
-                      Math.round(height - mousePos.y - scSize/2), 
-                      scSize, scSize];
             if (sc !== null && sc[2] > 0 && sc[3] > 0) {
                 gl.scissor(sc[0], sc[1], sc[2], sc[3]);
             } else {
