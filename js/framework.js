@@ -4,7 +4,7 @@ var width, height;
 (function() {
     'use strict';
 
-    var canvas, renderer, scene, camera, controls, stats, mousePos;
+    var canvas, renderer, scene, camera, controls, stats;
     var models = [];
 
     var cameraMat = new THREE.Matrix4();
@@ -19,7 +19,6 @@ var width, height;
             viewMat: camera.matrixWorldInverse,
             cameraPos: camera.position,
             models: models,
-            mousePos: mousePos
         });
     };
 
@@ -67,30 +66,18 @@ var width, height;
         console.log('MAX_DRAW_BUFFERS_WEBGL: ' + maxdb);
     };
 
-    var getMousePos = function(canvas, evt) {
-        var rect = canvas.getBoundingClientRect();
-        return {
-          x: evt.clientX - rect.left,
-          y: evt.clientY - rect.top
-        };
-    }
-
     var init = function() {
         // TODO: For performance measurements, disable debug mode!
         var debugMode = false;
 
         canvas = document.getElementById('canvas');
-        mousePos = {"x": 0, "y":0};
-        canvas.addEventListener('mousemove', function(evt) {
-            mousePos = getMousePos(canvas, evt);
-        }, false);
 
         renderer = new THREE.WebGLRenderer({
             canvas: canvas,
             preserveDrawingBuffer: debugMode
         });
         gl = renderer.context;
-        
+
         if (debugMode) {
             $('#dlbutton button').attr('disabled', false);
             $('#debugmodewarning').css('display', 'block');
@@ -103,6 +90,7 @@ var width, height;
 
         initExtensions();
 
+        Profiler.init();
         Editor.init();
 
         stats = new Stats();
