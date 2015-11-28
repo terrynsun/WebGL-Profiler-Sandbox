@@ -30,10 +30,14 @@ varying vec2 v_uv;
 const float TOON_STEPS = 3.0;
 
 vec3 applyNormalMap(vec3 geomnor, vec3 normap) {
+#pragma profile start 0
+    vec4 gb0 = texture2D(u_gbufs[0], v_uv);
+    vec3 test = vec3(0);
     normap = normap * 2.0 - 1.0;
     vec3 up = normalize(vec3(0.001, 1, 0.001));
     vec3 surftan = normalize(cross(geomnor, up));
     vec3 surfbinor = cross(geomnor, surftan);
+#pragma profile end 0
     return normap.y * surftan + normap.x * surfbinor + normap.z * geomnor;
 }
 
@@ -121,29 +125,11 @@ void main() {
         vec4 lightPR;
         vec4 lightC;
 
-        /// START 2
-        lightIdx = vec4(0).x;
-        lightPR  = vec4(0);
-        lightC   = vec4(0);
-
-        lastLightIdx = lightIdx;
-        /// END 2
-
-        /// START 1
-        lightIdx = u_zero.x;
-        lightPR  = u_zero;
-        lightC   = u_zero;
-
-        lastLightIdx = lightIdx;
-        /// END 1
-
-        /// START 0
         lightIdx = texture2D(u_lightIndices, offsetIdx).x;
         lastLightIdx = lightIdx;
 
         lightPR = texture2D(u_lightsPR, vec2(lightIdx, 0));
         lightC  = texture2D(u_lightsC,  vec2(lightIdx, 0));
-        /// END 0
 
         vec3 lightCol = vec3(lightC);
         vec3 lightPos = lightPR.xyz;
