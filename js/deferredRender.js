@@ -296,9 +296,6 @@
         bindTexturesForLightPass(program);
         gl.uniform1i(program.u_toon, cfg.toon ? 1 : 0);
 
-        //scissor patch size
-        var scSize = cfg.scissorSize;
-
         for (var i = 0; i < R.lights.length; i++) {
             var light = R.lights[i];
             var sc = getScissorForLight(state.viewMat, state.projMat, light);

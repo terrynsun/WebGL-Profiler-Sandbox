@@ -1,19 +1,70 @@
 (function() {
     'use strict';
 
+    var parser = new GLSLParser();
+
+    var rgxStart = /#pragma profile start ([0-9])*/;
+    var rgxEnd   = /#pragma profile end ([0-9])*/;
+
+    var rgxVec   = /vec[1-4]/;
+
     window.Editor = {};
 
     Editor.init = function() {
     };
 
-    Editor.test = function(fs) {
-        var parser = new GLSLParser();
+    var modifyStatement = function(stmt) {
+    };
+
+    /*
+     * @param nodelist 
+     * @return the list of 
+     */
+    var processNodeList = function(nodelist) {
+        var variations = [];
+        var regex = rgxStart;
+        var inPragma = false;
+        for (var i = 0; i < nodelist.length; i++) {
+            var node = nodelist[i];
+            var name = node.nodeName;
+            if (name === "PreprocessorDirective" && node.content.match(regex)) {
+                inPragma = !inPragma;
+                if (inPragma) {
+                } else {
+                }
+            } else if (name === "FunctionDefinition") {
+                // Recurse into function definitions.
+                var funcNodeStmts = node.body.statementList;
+                processNodeList(funcNodeStmts);
+            } else if (inPragma === true && name === "DeclarationStatement") {
+                var type = node.declaration.typeSpecifier.dataType[0].toLowerCase();
+
+                var decl = node.declaration.declarators[0];
+                var initializer = decl.initializer;
+                var varName = decl.name;
+
+                if (initializer.nodeName == "FunctionCall") {
+                    var func = initializer.name;
+                    if (type.match(rgxVec)) {
+                        var newDecl = sprintf("%s %s = %s(0);", type, varName, type);
+                        var newNode = parser.parse(newDecl).declarations[0];
+                        node.declaration = newNode;
+                    }
+                } else if (initializer.nodeName == "Constructor") {
+                }
+            }
+        }
+    };
+
+    Editor.editShader = function(fs) {
         var ast = parser.parse(fs);
-        console.log(ast);
+        var astDecls = ast.declarations;
+        //console.log(astDecls);
+        processNodeList(astDecls);
+        return parser.printAST(ast);
     };
 
     Editor.naiveModifyFragmentShader = function(fs, modifier) {
-        Editor.test(fs);
         var fsLines = fs.split('\n');
         var remove = false;
         var regexStart = /\/\/\/ START (\d)/;
