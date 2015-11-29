@@ -73,7 +73,7 @@ window.loadShaderProgram = (function() {
                 var vs = results[0];
                 var fs = results[1];
                 if (modifVal !== undefined && modifVal > 0) {
-                    fs = Editor.naiveModifyFragmentShader(fs, modifVal);
+                    fs = Editor.editShader(fs);
                 }
                 vs = compileShader(gl, vs, gl.VERTEX_SHADER);
                 fs = compileShader(gl, fs, gl.FRAGMENT_SHADER);

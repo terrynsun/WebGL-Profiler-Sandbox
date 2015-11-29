@@ -91,7 +91,6 @@ var width, height;
         initExtensions();
 
         Profiler.init();
-        Editor.init();
 
         stats = new Stats();
         stats.setMode(1); // 0: fps, 1: ms, 2: mb

@@ -10,15 +10,11 @@
 
     window.Editor = {};
 
-    Editor.init = function() {
-    };
-
-    var modifyStatement = function(stmt) {
-    };
-
     /*
-     * @param nodelist 
-     * @return the list of 
+     * In a given node list, replace all declaration statements between #pragma
+     * markup with no-ops.
+     *
+     * TODO: return more than one modified list?
      */
     var processNodeList = function(nodelist) {
         var variations = [];
@@ -30,7 +26,9 @@
             if (name === "PreprocessorDirective" && node.content.match(regex)) {
                 inPragma = !inPragma;
                 if (inPragma) {
+                    regex = rgxEnd;
                 } else {
+                    regex = rgxStart;
                 }
             } else if (name === "FunctionDefinition") {
                 // Recurse into function definitions.
@@ -56,10 +54,13 @@
         }
     };
 
+    /*
+     * Take in shader code and output modified shader code.
+     * Really just a wrapper to generate/handle ASTs.
+     */
     Editor.editShader = function(fs) {
         var ast = parser.parse(fs);
         var astDecls = ast.declarations;
-        //console.log(astDecls);
         processNodeList(astDecls);
         return parser.printAST(ast);
     };
@@ -90,5 +91,5 @@
             }
         }
         return fsLines.join('\n');
-};
+    };
 })();
