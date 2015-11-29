@@ -2,56 +2,86 @@
     'use strict';
 
     window.Timer = {};
-    Timer.ext = null;
-    Timer.query = null;
-    Timer.count = 0;
-    Timer.total = 0;
-    Timer.query_status = false;
+
+    var glTimer = null;
+    var currentQuery = null;
+    var isRunning = false;
+
+    var count = 0;
+    var totalElapsed = 0;
+
+    var enabled = true;
 
     Timer.init = function() {
-        Timer.ext = gl.getExtension('EXT_disjoint_timer_query');
+        glTimer = gl.getExtension('EXT_disjoint_timer_query');
     };
 
+    Timer.enable = function() {
+        enabled = true;
+    };
+
+    Timer.disable = function() {
+        enabled = false;
+    };
+
+    /*
+     * Starts a timer query (if one isn't running AND one isn't waiting for data
+     * to be returned).
+     */
     Timer.start = function() {
-        var ext = Timer.ext;
-        if (ext === null) {
+        // If timing currently disabled or glTimer does not exist, exit early.
+        if (enabled === false || glTimer === null) {
             return;
         }
-        if (Timer.query === null) {
-            Timer.query = ext.createQueryEXT();
-            ext.beginQueryEXT(ext.TIME_ELAPSED_EXT, Timer.query);
-            Timer.query_status = true;
+        if (currentQuery === null) {
+            currentQuery = glTimer.createQueryEXT();
+            glTimer.beginQueryEXT(glTimer.TIME_ELAPSED_EXT, currentQuery);
+            isRunning = true;
         }
     };
 
     Timer.reset = function() {
-        Timer.query = null;
-        Timer.query_status = false;
-        Timer.count = 0;
-        Timer.total = 0;
+        currentQuery = null;
+        isRunning = false;
+        count = 0;
+        totalElapsed = 0;
     };
 
+    var pollQueryData = function(query) {
+        var available = glTimer.getQueryObjectEXT(query, glTimer.QUERY_RESULT_AVAILABLE_EXT);
+        var disjoint = gl.getParameter(glTimer.GPU_DISJOINT_EXT);
+
+        if (available && !disjoint) {
+            return glTimer.getQueryObjectEXT(currentQuery, glTimer.QUERY_RESULT_EXT);
+        } else {
+            return null;
+        }
+    };
+
+    /*
+     * Ends a timer query (if running) and polls for timing information (if
+     * query exists to be polled).
+     */
     Timer.end = function() {
-        var ext = Timer.ext;
-        if (Timer.query_status === true) {
-            ext.endQueryEXT(ext.TIME_ELAPSED_EXT);
+        // If timing currently disabled or glTimer does not exist, exit early.
+        if (enabled === false || glTimer === null) {
+            return;
         }
 
-        if (Timer.query !== null) {
-            var available = ext.getQueryObjectEXT(Timer.query,
-                                                  ext.QUERY_RESULT_AVAILABLE_EXT);
-            var disjoint = gl.getParameter(ext.GPU_DISJOINT_EXT);
+        if (isRunning === true) {
+            glTimer.endQueryEXT(glTimer.TIME_ELAPSED_EXT);
+        }
 
-            if (available && !disjoint) {
-                var timeElapsed = ext.getQueryObjectEXT(Timer.query,
-                                                        ext.QUERY_RESULT_EXT);
-                Timer.count += 1;
-                Timer.total += timeElapsed;
-                if (Timer.count % 50 === 0) {
-                    var avg_ms = Timer.total/Timer.count * 0.000001;
-                    console.log(Timer.count + " iterations: " + avg_ms + "ms");
+        if (currentQuery !== null) {
+            var timeElapsed = pollQueryData(currentQuery);
+            if (timeElapsed !== null) {
+                count += 1;
+                totalElapsed += timeElapsed;
+                currentQuery = null;
+                if (count % 5 === 0) {
+                    var avg_ms = totalElapsed/count * 0.000001;
+                    console.log(count + " iterations: " + avg_ms + "ms");
                 }
-                Timer.query = null;
             }
         }
     };

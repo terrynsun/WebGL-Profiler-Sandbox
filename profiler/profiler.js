@@ -74,9 +74,13 @@
                     gl.enable(gl.SCISSOR_TEST);
                 }
 
-                // Set scissor and draw.
+                // Set scissor.
                 gl.scissor(sb[0], sb[1], sb[2], sb[3]);
+
+                // Draw, but inject Timer calls.
+                Timer.start();
                 var ret = f(mode, first, count);
+                Timer.end();
 
                 // Reset previous state
                 if (!prevScissorEnabled) {
@@ -87,8 +91,11 @@
                 // Return value from drawArrays
                 return ret;
             } else {
-                // Draw as normal
-                return f(mode, first, count);
+                // Draw as normal, but inject Timer calls
+                Timer.start();
+                var ret = f(mode, first, count);
+                Timer.end();
+                return ret;
             }
         });
 
@@ -98,5 +105,7 @@
         canvas.addEventListener('mousemove', function(evt) {
             Profiler.mousePos = getMousePos(canvas, evt);
         }, false);
+
+        Timer.init();
     };
 })();

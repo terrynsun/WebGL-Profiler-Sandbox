@@ -30,8 +30,6 @@
         R.pass_copy.setup();
         R.pass_deferred.setup();
         R.pass_tiled.setup();
-
-        Timer.init();
     };
 
     R.light_min = [-14, 0, -4];
