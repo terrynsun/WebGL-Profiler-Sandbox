@@ -105,6 +105,12 @@
             padding: 1em;
             background-color: rgba(0,0,0,0.5);
         }
+
+        #testing {
+            position: fixed;
+            top: 20px;
+            left: 100px;
+        }
     </style>
 </head>
 <body>
@@ -121,5 +127,26 @@
     <div id="alertcontainer">
         <div id="alertbox"><pre id="alerttext"></pre></div>
     </div>
+
+    <script>
+        function test() {
+            var eventObj = new CustomEvent("avg_ms", 
+                                {
+                                    detail: {
+                                        avg_ms: Math.random(),
+                                        time: new Date(),
+                                    },
+                                    bubbles: true,
+                                    cancelable: true
+                                }
+                            );
+            console.log(eventObj);
+            document.dispatchEvent(eventObj);
+            console.log("event dispatched");
+            setTimeout(test, 1000);
+        }
+        test();
+    </script>
+
 </body>
 </html>
