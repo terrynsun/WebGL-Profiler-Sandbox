@@ -81,6 +81,16 @@
                 if (count % 5 === 0) {
                     var avg_ms = totalElapsed/count * 0.000001;
                     console.log(count + " iterations: " + avg_ms + "ms");
+                    var eventObj = new CustomEvent("avg_ms", {
+                                    detail: {
+                                        avg_ms: avg_ms,
+                                        time: new Date(),
+                                    },
+                                    bubbles: true,
+                                    cancelable: true
+                                }
+                            );
+                    document.dispatchEvent(eventObj);
                 }
             }
         }
