@@ -7,13 +7,17 @@
     var currentQuery = null;
     var isRunning = false;
 
-    var count = 0;
+    var totalCount = 0;
     var totalElapsed = 0;
 
     var enabled = true;
+    var sendEvent = true;
 
     Timer.init = function() {
         glTimer = gl.getExtension('EXT_disjoint_timer_query');
+        if (glTimer === null) {
+            dispatchDummyEvent();
+        }
     };
 
     Timer.enable = function() {
@@ -43,7 +47,7 @@
     Timer.reset = function() {
         currentQuery = null;
         isRunning = false;
-        count = 0;
+        totalCount = 0;
         totalElapsed = 0;
     };
 
@@ -56,6 +60,38 @@
         } else {
             return null;
         }
+    };
+
+    var dispatchDummyEvent = function() {
+        var count = 0;
+        function dummy() {
+            count += 25;
+            var eventObj = new CustomEvent("avg_ms", {
+                                    detail: {
+                                        avg_ms: Math.random(),
+                                        count: count,
+                                        time: new Date(),
+                                    },
+                                });
+            document.dispatchEvent(eventObj);
+            setTimeout(dummy, 1000);
+        }
+        dummy();
+    };
+
+    var dispatchEvent = function(avg_ms, count) {
+        if (sendEvent === false) {
+            return;
+        }
+
+        var eventObj = new CustomEvent("timer_data", {
+                                detail: {
+                                    avg_ms: avg_ms,
+                                    count: count,
+                                    time: new Date(),
+                                },
+                            });
+        document.dispatchEvent(eventObj);
     };
 
     /*
@@ -75,22 +111,12 @@
         if (currentQuery !== null) {
             var timeElapsed = pollQueryData(currentQuery);
             if (timeElapsed !== null) {
-                count += 1;
+                totalCount += 1;
                 totalElapsed += timeElapsed;
                 currentQuery = null;
-                if (count % 5 === 0) {
-                    var avg_ms = totalElapsed/count * 0.000001;
-                    console.log(count + " iterations: " + avg_ms + "ms");
-                    var eventObj = new CustomEvent("avg_ms", {
-                                    detail: {
-                                        avg_ms: avg_ms,
-                                        time: new Date(),
-                                    },
-                                    bubbles: true,
-                                    cancelable: true
-                                }
-                            );
-                    document.dispatchEvent(eventObj);
+                if (totalCount % 25 === 0) {
+                    var avg_ms = totalElapsed/totalCount * 0.000001;
+                    dispatchEvent(avg_ms, totalCount);
                 }
             }
         }
