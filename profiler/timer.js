@@ -74,6 +74,7 @@
                                     },
                                 });
             document.dispatchEvent(eventObj);
+            console.log(eventObj);
             setTimeout(dummy, 1000);
         }
         dummy();
@@ -84,7 +85,7 @@
             return;
         }
 
-        var eventObj = new CustomEvent("timer_data", {
+        var eventObj = new CustomEvent("avg_ms", {
                                 detail: {
                                     avg_ms: avg_ms,
                                     count: count,
@@ -92,6 +93,7 @@
                                 },
                             });
         document.dispatchEvent(eventObj);
+        console.log(eventObj);
     };
 
     /*
